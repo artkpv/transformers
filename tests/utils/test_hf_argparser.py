@@ -480,3 +480,26 @@ class HfArgumentParserTest(unittest.TestCase):
             )
             self.assertEqual(args.accelerator_config.split_batches, True)
             self.assertEqual(args.accelerator_config.gradient_accumulation_kwargs["num_steps"], 2)
+
+    def test_parse_argsfile(self):
+        parser = HfArgumentParser(BasicExample)
+
+        args_dict = {
+            "foo": 12,
+            "bar": 3.14,
+            "baz": "42",
+            "flag": True,
+        }
+        args_file = '\n'.join([f"--{k} {v}" for k, v in args_dict.items()])
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            temp_local_path = os.path.join(tmp_dir, "temp_argsfile.args")
+            if not os.path.exists(tmp_dir):
+                os.mkdir(tmp_dir)
+            with open(temp_local_path, "w+") as f:
+                f.write(args_file)
+            args=['--argsfile', temp_local_path]
+            sys.argv = ['myprog'] + args
+            parsed_args = parser.parse_args_into_dataclasses(args_file_flag='--argsfile')[0]
+
+        args = BasicExample(**args_dict)
+        self.assertEqual(parsed_args, args)

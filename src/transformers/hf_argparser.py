@@ -328,7 +328,7 @@ class HfArgumentParser(ArgumentParser):
                 args_file_parser.add_argument(args_file_flag, type=str, action="append")
 
                 # Use only remaining args for further parsing (remove the args_file_flag)
-                cfg, args = args_file_parser.parse_known_args(args=args)
+                cfg, args = args_file_parser.parse_known_args(args=args or sys.argv[1:])
                 cmd_args_file_paths = vars(cfg).get(args_file_flag.lstrip("-"), None)
 
                 if cmd_args_file_paths:
